@@ -398,9 +398,163 @@ print(str2int("12345"))
 # 将字符串变成首字母大写，其余小写
 #
 def normalize(s):
-    pass
+    s1 = s.lower()
+    # replace 替换所有指定字符，不一定是首位,采用切片的方法替换
+    s2 = s1[0].upper() + s1[1:]
+    return s2
 
 
 L1 = ['adam', 'LISA', 'barT']
 L2 = list(map(normalize, L1))
 print(L2)
+
+# sum函数，传入list求和
+L = [1, 2, 3, 4]
+print(sum(L))
+
+
+# 写一个prod函数利用reduce()求积
+def product(x1, x2):
+    return x1 * x2
+
+
+def prod(l):
+    return reduce(product, l)
+
+
+print(prod(L))
+
+
+# 写一个str转float函数,map将数字和小数点字符转化为数字，reduce累加求和
+def char2num(ch):
+    return {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8,
+            '9': 9, '.': -1}[ch]
+
+
+def str2float(s):
+    # 记录小数点后几位的变量
+    point = 0
+
+    def sum2sum(x, y):
+        # point 记录y位于的小数点后位数，只有其大于0时才处理
+        # 比如123.456 先走到3. x=123 y=-1 再走到.4 x=123.0 y=4
+        # 用point记录遇到小数点前，正常累加求和
+        # nonlocal声明point变量在整个大函数中都有效
+        nonlocal point
+
+        # 遇到小数点之后,改变求和方式，需要首先判断
+        if y == -1:
+            point = 1
+            return x + 0.0
+
+        if point == 0:
+            return x * 10 + y
+        else:
+            # 每次进入该代码块代表向小数点后进了一位
+            z = x + y / pow(10, point)
+            point += 1
+            return z
+
+    return reduce(sum2sum, map(char2num, s))
+
+
+print(str2float("0.99"))
+
+# filter函数 filter()函数返回的是一个 Iterator
+# 把传入的函数依次作用于每个元素，然后根据返回值是 True 还是 False 决定保留还是丢弃该元素
+
+# str.strip([chars])移除字符串头尾的指定字符序列，默认是空格和换行符
+s = ' abc '
+print(s and s.strip())
+
+
+def not_empty(s):
+    return s and s.strip()
+
+
+print(list(filter(not_empty, ['A', '', 'B', None, 'C', ' '])))
+
+
+# 用埃式筛选法生成素数
+# 除开2 ，从3开始的奇数序列生成器，返回序列第一个数，将剩余数字%，取不能整除的数字
+
+# 从3开始奇数序列生成器
+def odd_creator():
+    n = 3
+    while True:
+        yield n
+        n += 2
+
+
+# 筛选函数,每次需要判断整除的数不固定，可以通过lambda生成不同的函数
+def filter_method(n):
+    return lambda x: x % n != 0
+
+
+# 素数生成器
+def primes():
+    yield 2
+
+    o = odd_creator()
+
+    while True:
+        # 取序列第一个元素
+        n = next(o)
+        yield n
+
+        # 过滤惰性迭代器,filter函数返回的是新的iterator
+        o = filter(filter_method(n), o)
+
+
+for n in primes():
+    if n < 100:
+        print(n)
+    else:
+        break
+
+
+# filter过滤掉非回数
+def reverse_judge(x):
+    s = str(x)
+    l = len(s) - 1
+    i = 0
+    while i < l:
+        if s[i] == s[l]:
+            i += 1
+            l -= 1
+            continue
+        else:
+            return True
+    return False
+
+
+print('------------filter---------------')
+x = filter(reverse_judge, [121, 0, 100, 2002])
+
+for n in x:
+    print(n)
+
+print('------------sorted函数---------------')
+
+# key 指定的函数将作用于 list 的每一个元素上，并根据 key 函数返回的结果进行排序
+l = sorted([36, 5, -12, 9, -21], key=abs)
+print(l)
+
+# 忽略大小写并进行反向排序
+sorted(['bob', 'about', 'Zoo', 'Credit'], key=str.lower, reverse=True)
+
+L = [('Bob', 75), ('Adam', 92), ('Bart', 66), ('Lisa', 88)]
+L2 = sorted(L, key=lambda x : x[0])
+print(L2)
+L3 = sorted(L, key=lambda x : x[1])
+print(L3)
+
+print('------------闭包Closure---------------')
+# 闭包就是内部函数引用外部变量，返回的函数保存了外部变量的值，最终调用返回的函数时，外部变量的值为最新值
+# 牢记的一点就是：返回函数不要引用任何循环变量，或者后续会发生变化的变量
+
+
+
+print('------------装饰器（Decorator）---------------')
+# 函数对象有一个__name__属性
+print(abs.__name__)
