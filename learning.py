@@ -117,4 +117,123 @@ for a in t:
 print(list(range(5)))
 
 
+# dict 即java中的map，键值对形式,
+# dict 内部存放的顺序和 key 放入的顺序是没有关系的
+# 这种 key-value 存储方式，在放进去的时候，必须根据 key算出 value 的存放位置，
+# 这样，取的时候才能根据 key 直接拿到 value,通过 key 计算位置的算法称为哈希算法（Hash）
+# key 的对象必须保证不可变
+d = {'Michael': 95, 'Bob': 75, 'Tracy': 85}
+d['Michael'] = 90
+
+
+# 避免key不存在报错
+if 'Michael' in d:
+    print(d['Michael'])
+    # 如果 key 不存在，可以返回 None，或者自己指定的 value
+    print(d.get('Michael', 100))
+# 删除指定key-value
+d.pop('Tracy')
+print(d)
+
+
+# Set 创建一个 set，需要提供一个 list 作为输入集合
+# 也是一组 key 的集合,但不存储 value，因此不可重复，自动过滤重复元素
+# 数学意义上的无序和无重复元素的集合
+s = set([1, 2, 3, 5, 4])
+s.add(6)
+s.remove(6)
+print(s)
+
+# 做数学意义上的交集、并集等操作
+s2 = set([1, 2])
+print(s & s2)
+print(s | s2)
+
+# 同样不可以放入可变对象，因为无法判断两个可变对象是否相等，与dict一样需要通过hash生成其位置
+# 不可变对象
+a = 'abc'
+b = a.replace('a', 'A')
+print(a, b)
+
+# 函数 abs()绝对值 max()最大值 int() float() str()转字符串 bool()布尔值
+# 函数名赋给变量
+a = abs
+print(a(-20))
+# hex()int转16进制
+print(hex(255))
+
+# 定义函数
+# 没有 return 语句，函数执行完毕后也会返回结果，只是结果为 None
+def my_abs(x):
+    if x >= 0:
+        return x
+    else:
+        return -x
+
+print(my_abs(-10))
+
+# 空函数pass
+def nop():
+    pass
+
+# 类型检查
+print(isinstance(1, (int, float)))
+
+# 返回多个值return x1，x2，返回值是一个 tuple
+# 位置参数，power(x, n)传入的两个值按照位置顺序依次赋给参数 x 和 n
+
+
+# 默认参数 def power(x, n=2): 必选参数在前，默认参数在后，与默认参数不符的参数需要赋值
+def enroll(name, gender, age=6, city='Beijing'):
+    pass
+enroll('Bob', 'M', 7)
+# 不按照顺序给默认参数赋值，需要指定参数名称
+enroll('Adam', 'M', city='Tianjin')
+# 默认参数必须指向不变对象
+
+# 可变参数，参数 numbers 接收到的是一个 tuple
+def calc(*numbers):
+    sum = 0
+    for n in numbers:
+        sum = sum + n * n
+    return sum
+
+nums = [1,2,3]
+print(calc(1, 2, 3, 4))
+# Python允许你在list或tuple前面加一个*号,把list或tuple作为可变参数传进去
+print(calc(*nums))
+
+# 关键字参数
+# 关键字参数允许你传入 0 个或任意个含参数名的参数，这些关键字参数在函数内部自动组装为一个 dict。
+def person(name, age, **kw):
+    print('name:', name, 'age:', age, 'other:', kw)
+# person('Bob', 35, city='Beijing')
+# 可以组装dict放入，extra =  {'city': 'Beijing', 'job': 'Engineer'}
+# person('Jack', 24, **extra)
+# 关键字参数是拷贝，不会影响原来的extra dict
+
+# 如果要限制关键字参数的名字，就可以用命名关键字参数,*后为命名关键字参数
+# 必须传入参数名,可以有缺省值
+def person(name, age, *, city = 'Beijing', job):
+    print(name, age, city, job)
+# 当有缺省值，调用时可以不传入city参数
+person('Jack', 24, job='Engineer')
+
+
+# 任意函数，都可以通过类似 func(*args, **kw)的形式调用它
+# 其中*args代表将一个tuple传入，**kw代表将一个dict传入
+
+
+
+# 尾递归优化，python不支持尾递归优化
+# 汉诺塔移动练习
+
+
+# 切片操作符
+
+
+
+
+
+
 
