@@ -1,5 +1,7 @@
 # input()返回的数据类型是 str name = input('输入名字')
 # print("hello,world", 'gg', name)
+import functools
+
 print("1024 * 768= ", 1024 * 768)
 
 # Python 程序是大小写敏感的
@@ -544,9 +546,9 @@ print(l)
 sorted(['bob', 'about', 'Zoo', 'Credit'], key=str.lower, reverse=True)
 
 L = [('Bob', 75), ('Adam', 92), ('Bart', 66), ('Lisa', 88)]
-L2 = sorted(L, key=lambda x : x[0])
+L2 = sorted(L, key=lambda x: x[0])
 print(L2)
-L3 = sorted(L, key=lambda x : x[1])
+L3 = sorted(L, key=lambda x: x[1])
 print(L3)
 
 print('------------闭包Closure---------------')
@@ -554,7 +556,83 @@ print('------------闭包Closure---------------')
 # 牢记的一点就是：返回函数不要引用任何循环变量，或者后续会发生变化的变量
 
 
-
 print('------------装饰器（Decorator）---------------')
 # 函数对象有一个__name__属性
 print(abs.__name__)
+
+
+# 无参数装饰器
+def log(func):
+    def a(*args, **kw):
+        print('call %s' % func.__name__)
+        return func(*args, **kw)
+
+    return a
+
+
+# 有参数装饰器，从上至下，依次传入@的文本，函数func，函数参数
+def log(content):
+    def a(func):
+        # 加上这个注解，指定的函数属性就被复制到了func
+        @functools.wraps(func)
+        def b(*args, **kw):
+            print('call %s--%s' % (func.__name__, content))
+            return func(*args, **kw)
+
+        return b
+
+    return a
+
+
+@log("卧佛了")
+def now():
+    print('2019-1-10')
+
+
+now()
+print(now.__name__)
+
+
+# 请编写一个 decorator，能在函数调用的前后打印出'begin call'和'end call'的日志。
+def log1(func):
+    def wrapper(*args, **kw):
+        print('begin call')
+        func(*args, **kw)
+        print('end call')
+
+    return wrapper
+
+
+@log1
+def now2():
+    print('2019-1-10')
+
+
+now2()
+
+print('------------偏函数partial function---------------')
+# functools.partial 的作用就是，把一个函数的某些参数
+# 给固定住（也就是设置默认值），返回一个新的函数，调用这个新函数
+# 会更简单
+
+print(int('10', base=2))
+# partial函数的入参为  函数  函数*args参数   函数**kw参数
+# 相当于固定了base = 2关键字参数
+int2 = functools.partial(int, base=2)
+print(int2('10'))
+
+# 相当于固定了100作为max *args入参之一
+max2 = functools.partial(max, 100)
+print(max2(*[10, 20 ,30]))
+
+# if __name__=='__main__':
+# test()
+# 这种 if 测试可以让一个模块通过命令行运行时执行一些额外的代码，最常见的就是运行测试。
+
+# xxx 和__xxx 这样的函数或变量就是非公开的（private），不应该被直接引用
+
+
+# pip install -i https://pypi.tuna.tsinghua.edu.cn/simple 从清华镜像安装指定python库
+from PIL import Image
+
+
