@@ -623,7 +623,7 @@ print(int2('10'))
 
 # 相当于固定了100作为max *args入参之一
 max2 = functools.partial(max, 100)
-print(max2(*[10, 20 ,30]))
+print(max2(*[10, 20, 30]))
 
 # if __name__=='__main__':
 # test()
@@ -635,4 +635,26 @@ print(max2(*[10, 20 ,30]))
 # pip install -i https://pypi.tuna.tsinghua.edu.cn/simple 从清华镜像安装指定python库
 from PIL import Image
 
+print('------------OOP---------------')
+
+
+# 第一个参数永远是 self，表示创建的实例本身,相当于java中的this
+class Student(object):
+    def __init__(self, name, age):
+        self.__name = name
+        self.age = age
+        self.__score__ = 100
+
+    def print_info(self):
+        print('姓名：%s 年龄：%s ' % (self.__name, self.age))
+
+
+bart = Student('李四', 20)
+# print(bart.__name) 类所绑定的属性前加上__，则表示权限为private，外部不可以访问
+# 单下划线_xx可以访问但是希望被视为private的
+# 不能直接访问__name 是因为 Python 解释器对外把__name 变量改成了_Student__name
+# __xx__特殊变量是可以直接访问的，不是 private 变量
+print(bart.__score__)
+bart.age = 30
+bart.print_info()
 
