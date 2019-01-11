@@ -639,6 +639,7 @@ print('------------OOP---------------')
 
 
 # 第一个参数永远是 self，表示创建的实例本身,相当于java中的this
+# 类名后面是父类
 class Student(object):
     def __init__(self, name, age):
         self.__name = name
@@ -653,8 +654,318 @@ bart = Student('李四', 20)
 # print(bart.__name) 类所绑定的属性前加上__，则表示权限为private，外部不可以访问
 # 单下划线_xx可以访问但是希望被视为private的
 # 不能直接访问__name 是因为 Python 解释器对外把__name 变量改成了_Student__name
+print(bart._Student__name)
 # __xx__特殊变量是可以直接访问的，不是 private 变量
 print(bart.__score__)
+
 bart.age = 30
 bart.print_info()
+
+
+# 多态
+class Animal(object):
+    def run(self):
+        print("animal is running")
+
+
+class Cat(Animal):
+    def run(self):
+        print("cat is running")
+
+
+class Dog(Animal):
+    def run(self):
+        print("dog is running")
+
+
+def sth_run(animal):
+    animal.run()
+
+
+dog1 = Dog()
+cat1 = Cat()
+sth_run(dog1)
+sth_run(cat1)
+
+
+# 鸭子类型,只要实现了run方法就可以实现多态，继承不是必须的
+class Sth(object):
+    def run(self):
+        print('sth is running')
+
+
+sth1 = Sth()
+sth_run(sth1)
+
+print('------------判断数据类型---------------')
+# type()函数
+print(type(sth1))
+print(type([]))
+
+# 判断是否函数
+import types
+
+print(type(sth_run) == types.FunctionType)
+print(type(abs) == types.BuiltinFunctionType)
+print(type(lambda x: x) == types.LambdaType)
+print(type((x for x in range(10))) == types.GeneratorType)
+
+# isinstance()函数
+print(isinstance(dog1, Animal))
+print(isinstance(dog1, (Animal, Sth)))
+
+# dir()函数，列出对象所有属性和方法
+d = dir(Animal)
+print(d)
+
+# getattr()获取指定对象某属性、setattr()设置属性、hasattr()判断是否有属性
+age = getattr(bart, "age")
+print(age)
+
+# 获取不存在的属性值，返回default值
+print(getattr(bart, 'name', "not found"))
+setattr(bart, "age", 13)
+print(bart.age)
+print(hasattr(bart, "age"))
+
+# getattr()也可以用于获取方法
+pr = getattr(bart, "print_info")
+pr()
+
+
+# 类属性和实例属性的区别
+class Person(object):
+    name = '我是个人'
+
+    def __init__(self):
+        self.name = '具体人名字'
+
+
+# 当类属性与实例属性同名，实例属性优先级高于类属性
+print(Person.name)
+p = Person()
+print(p.name)
+
+# 删除实例属性
+del p.name
+print(p.name)
+
+print('------------OOP高级---------------')
+
+
+# 给Air类的实例动态绑定一个方法
+class Air(object):
+    pass
+
+
+def dynamic_method(self, age1):
+    self.age = age1
+    print("实例的动态绑定方法----" + str(age1))
+
+
+air = Air()
+
+from types import MethodType
+
+# 绑定方法到指定实例
+air.dy_meth = MethodType(dynamic_method, air)
+air.dy_meth(20)
+print(air.age)
+
+# 给Air类动态绑定方法，以使得所有实例都可调用
+Air.meth = MethodType(dynamic_method, air)
+air2 = Air()
+air2.meth(100)
+
+
+# __slot__变量限制该类的实例能够定义的属性
+class Net(object):
+    __slots__ = ['name', 'money']
+
+
+net = Net()
+# 不能绑定slots中没有指定的属性
+net.name = '网络'
+net.money = '无限'
+
+
+# net.slim = '瘦子'
+
+
+# @property装饰器，回忆装饰器中的@log
+# @property注解的相当于getter方法，@属性名.setter相当于setter方法
+class Stu(object):
+    @property
+    def score(self):
+        return self._score
+
+    @score.setter
+    def score(self, value):
+        if not isinstance(value, int):
+            raise ValueError('score must be an integer!')
+        if value < 0 or value > 100:
+            raise ValueError('score must between 0 ~ 100!')
+        self._score = value
+
+
+stu = Stu()
+stu.score = 11  # 调用setter方法，并进行参数合法性判断
+print(stu.score)  # 相当于调用getter方法
+
+
+# 多重继承 = MixIn设计
+
+# __str__作用 改变print(obj)打印的信息
+class Obj1(object):
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __str__(self):
+        return 'name = %s age = %s' % (self.name, self.age)
+
+
+obj_ = Obj1("张三", 130)
+print(obj_)
+
+
+# 如果一个类想被用于 for ... in 循环，类似 list 或 tuple 那样，就必须实现一个__iter__()方法
+# for循环就会不断调用该迭代对象的__next__()方法拿到循环的下一个值
+# 利用__iter__和__next__写一个斐波那契数列生成器
+class Fib(object):
+    # 无参数构造器
+    def __init__(self):
+        self.a, self.b = 0, 1
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        self.a, self.b = self.b, self.a + self.b
+        if self.a > 100:
+            raise StopIteration
+        return self.a
+
+    # 使得Fib实例能够用索引获取元素,n为传入的索引值
+    # __getitem__()传入的参数可能是一个int，也可能是一个切片对象slice
+    def __getitem__(self, n):
+        if isinstance(n, int):
+            a, b = 1, 1
+            for x in range(n):
+                a, b = b, a + b
+            return a
+
+        if isinstance(n, slice):
+            start = n.start
+            stop = n.stop
+            if start is None:
+                start = 0
+            a, b = 1, 1
+            L = []
+            for x in range(stop):
+                if x >= start:
+                    L.append(a)
+                a, b = b, a + b
+            return L
+
+
+f = Fib()
+for fib in f:
+    print(fib)
+
+print(f[4])
+print(f[0:5])
+
+
+# 在没有找到属性的情况下，才调用__getattr__，任意调用则返回None
+class Obj3(object):
+
+    def __getattr__(self, item):
+        if item == 'name':
+            return lambda: 'nickname'
+
+
+obj_1 = Obj3()
+print(obj_1.name())
+print(obj_1.age)
+
+
+# 实现一个链式调用
+class Chain(object):
+    # 需要将前一个对象的path传入进行初始化
+    def __init__(self, path=''):
+        self.__path = path
+
+    def __str__(self):
+        return self.__path
+
+    def __getattr__(self, item):
+        return Chain('%s/%s' % (self.__path, item))
+
+    def __call__(self, *args, **kwargs):
+        print('obj is called')
+
+
+ch = Chain().user.name.age.score
+print(ch)
+
+# __call__函数，使得对象能直接调用，模糊了对象和函数的界限
+ch()
+# 判断一个对象是否可以被调用
+print(callable(ch))
+
+print('-------------枚举-----------------')
+from enum import Enum
+
+Month = Enum('Month', ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+                       'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
+
+# value是默认从1开始自动分配的值
+for name, member in Month.__members__.items():
+    print(name, '=>', member, ',', member.value)
+
+# 继承Enum类自定义枚举类型
+from enum import unique
+
+
+# @unique 装饰器可以帮助我们检查保证没有重复值
+@unique
+class Week(Enum):
+    Sun = 0
+    Mon = 1
+    Tue = 2
+    Wed = 3
+    Thu = 4
+    Fri = 5
+    Sat = 6
+
+
+# 访问方式
+print(Week.Mon)
+print(Week.Thu.value)
+print(Week['Mon'])
+# 通过value获取
+print(Week(1))
+
+print('-----------------元类-----------------')
+# from 是py文件名字 import 后是类名
+from hi import Hello
+
+# import之后就可以像普通对象一样
+h = Hello()
+h.hello()
+print(type(Hello), type(h))
+
+
+def hello(self, name='world'):
+    print('Hello, %s.' % name)
+
+
+# 使用type()函数返回一个对象的类型，也可以创建一个新的类型
+# 参数 1.类名 2.多重继承的tuple 3.函数与方法名绑定
+GG = type('GG', (object,), dict(f=hello))
+GG().f()
+
+
+# metaclass 元类-->类-->实例 允许对类进行修改和创建
 
