@@ -1242,3 +1242,65 @@ print(list1)
 list2 = [y for y in os.listdir('.') if os.path.isfile(y)
          and os.path.splitext(y)[1] == '.py']
 print(list2)
+
+print('----------序列化 pickling 反序列化 unpickling------------')
+import pickle
+
+# 序列化将对象转换成字节数据输出到文件
+d = dict(zhangsan='zhangsan23', lisi='李四', wangwu='王五')
+f = open('serial.txt', 'wb')
+pickle.dump(d, f)
+f.close()
+# 反序列化第一种方式：
+bf = open('serial.txt', 'rb')
+read_bf = bf.read()
+loads = pickle.loads(read_bf)
+print(isinstance(loads, dict))
+print(loads)
+bf.close()
+
+# 反序列化第二种方式：pickle.load(file)方法
+bf = open('serial.txt', 'rb')
+load = pickle.load(bf)
+print(load)
+bf.close()
+
+# python的序列化不能跨语言或者跨版本，JSON可以
+# json模块的序列化与反序列化
+import json
+
+a = {"age": 20, "score": 88, "name": "Bob"}
+print(isinstance(a, dict))
+dumps = json.dumps(a)
+print(isinstance(dumps, str))
+print(dumps)
+
+json_load = json.loads(dumps)
+print(isinstance(json_load, dict))
+
+
+class Student(object):
+    def __init__(self, name, age, score):
+        self.name = name
+        self.age = age
+        self.score = score
+
+
+s = Student('Bob', 20, 80)
+
+# 定义的类大部分不可以实例化
+# 将任意 class 的实例变为 dict后再被序列化
+json_dumps = json.dumps(s, default=lambda obj: obj.__dict__)
+print(json_dumps)
+
+
+# 反序列化
+def dict2student(d):
+    return Student(d['name'], d['age'], d['score'])
+
+
+json_loads = json.loads(json_dumps, object_hook=dict2student)
+print(json_loads)
+
+
+
