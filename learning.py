@@ -966,6 +966,279 @@ def hello(self, name='world'):
 GG = type('GG', (object,), dict(f=hello))
 GG().f()
 
-
 # metaclass 元类-->类-->实例 允许对类进行修改和创建
 
+print("------------错误处理--------------")
+# 如果执行出错，则后续代码不会继续执行，而是直接跳转至错误处理代码
+# try except finally代码块处理错误
+try:
+    print('try---')
+    r = 10 / 2
+    print('r = %s' % r)
+except ZeroDivisionError as e:
+    print('except---', e)
+# 如果except没有执行，那么会自动执行其后的else代码块
+else:
+    print('when except is not executed,else execute!')
+finally:
+    print('finally---')
+print('End')
+
+# 用logging模块将错误跟踪信息输出
+import logging
+
+
+def foo(s):
+    return 10 / int(s)
+
+
+def bar(s):
+    return foo(s) * 2
+
+
+def main():
+    try:
+        bar('0')
+    except Exception as e:
+        logging.exception(e)
+
+
+# main()
+print("logging end")
+
+
+# 自定义错误类并且抛出
+class MyValueError(ValueError):
+    pass
+
+
+def foo2(s):
+    n = int(s)
+    if n == 0:
+        raise MyValueError('invalid error！ %s ' % n)
+    return 10 / n
+
+
+# foo2('0')
+
+# 在except中继续抛出异常让顶层调用者处理
+def foo3():
+    try:
+        10 / 0
+    except ZeroDivisionError:
+        print('zero division error')
+        raise
+
+
+# foo3()
+
+# 将错误类型转换后抛出
+# try:
+#     10 / 0
+# except ZeroDivisionError:
+#     raise ValueError('input error!')
+
+
+print('--------------调试---------------')
+
+
+# assert断言
+# 如果断言失败，assert 语句本身就会抛出 AssertionError
+# 启动 Python 解释器时可以用-O 参数来关闭 assert 例如python3 -O err.py
+def a1(n):
+    # 抛出AssertionError: n is a invalid value
+    assert n != 0, 'n is a invalid value'
+    print('assert success')
+
+
+# a1(0)
+
+# logging 不抛出错误，并且可以输出到文件
+s = '0'
+n = int(s)
+
+# 配置记录信息的级别debug, info , warning , error
+# 指定level后，级别低于该level的不起作用
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+logging.warning('n=%d' % n)
+# print(10 / n)
+
+# 调试器pdb
+# 通过pdb.set_trace()，就可以设置一个断点
+
+import pdb
+
+s = '0'
+n = int(s)
+# pdb.set_trace()
+# 运行到这里会自动暂停
+print('pdb断点')
+
+print('------------单元测试-------------')
+# 如果我们对 abs()函数代码做了修改，只需要再跑一遍单元测试，如果通过，说明我们的修改不会对 abs()函
+# 数原有的行为造成影响
+
+d = dict()
+d['key'] = 'value'
+# d.key = 'haha'
+print(d)
+
+# 文档测试doctest
+
+# def abs(n):
+#     ''' Function to get absolute value of number.
+#     Example:
+#     >>> abs(1)
+#     1
+#     >>> abs(-1)
+#     1
+#     >>> abs(0)
+#     0
+#     '''
+#
+#     return n if n >= 0 else (-n)
+
+
+print('-----------IO编程-------------')
+
+# 只读模式
+f = open('py.txt', 'r')
+# line = f.readline()
+# print(line.strip())
+# f_read = f.read()
+# print(f_read)
+
+for i in f.readlines():
+    print(i.strip())
+
+f.close()
+
+# open()函数返回的这种有个 read()方法的对象,称为file like Object
+
+# 读取二进制文件
+f1 = open("py.txt", 'rb')
+print(f1.read())
+
+# 字符编码 ,errors = 'ignore' 表示遇到编码错误忽略
+f2 = open('py.txt', 'r', encoding='utf-8', errors='ignore')
+print(f2.read())
+
+# 读取非UTF-8编码的文本文件，需要给open()函数传入 encoding参数
+f3 = open('py2.txt', 'r', encoding='gbk')
+print(f3.read())
+
+f1.close()
+f2.close()
+f3.close()
+
+# 写入信息，指定写入的编码
+f4 = open('py2.txt', 'w', encoding='gbk')
+f4.write('写入的信息')
+# 不关闭流的话可能只会写入一部分
+f4.close()
+
+
+# with as方法原理 with as返回的对象，必须拥有__enter__方法，__exit__方法，这两方法分别在
+# with后代码块执行前、后执行，
+# 由于文件打开过程中有可能有IOException，并且读写完毕后需要关闭，通常用try finally代码块
+# 但是with open as与try finally实现的效果相同
+class Sample:
+    def __enter__(self):
+        print("In __enter__()")
+        return "Foo"
+
+    def __exit__(self, type, value, trace):
+        print("In __exit__()")
+
+
+def get_sample():
+    return Sample()
+
+
+with get_sample() as sample:
+    print("sample:", sample)
+
+# 如果指定一个不存在的文件进行写入，会自动创建
+with open('py4.txt', 'w', encoding='utf-8') as f5:
+    f5.write("哈哈哈你好啊")
+
+print('-----------StringIO与BytesIO-------------')
+# StringIO就是在内存中读写str
+# 类似于缓冲区
+# 除了初始化外和文件操作完全相同
+
+from io import StringIO
+
+sio = StringIO()
+sio.write("你好")
+sio.write('\r\n')
+sio.write('换行')
+print(sio.getvalue())
+
+# getvalue之后应该缓冲区内容被清空了
+print(sio.read())
+string_io = StringIO('哈哈\n嘻嘻\n呵呵\nhh')
+read_lines = string_io.readlines()
+for x in read_lines:
+    print(x)
+
+# BytesIO操作二进制数据，在内存中读写bytes
+from io import BytesIO
+
+print(b'\xe4\xb8\xad\xe6\x96\x87')
+bytes_io = BytesIO(b'\xe4\xb8\xad\xe6\x96\x87')
+print(bytes_io.read())
+print(bytes_io.read(2))
+print(bytes_io.read(2))
+print(bytes_io.read(2))
+print(bytes_io.read())
+
+# 字符串的编码与解码
+bytes_io.write('中文'.encode('utf-8'))
+getvalue = bytes_io.getvalue()
+print(getvalue)
+print(getvalue.decode('utf-8'))
+
+print('-------------系统----------------')
+import os
+
+# 环境变量
+print(os.environ)
+
+# 文件和目录
+# 当前绝对路径
+print(os.path.abspath('.'))
+
+# 这个相当于java中的跨平台拼接字符串,join拼接路径，
+join = os.path.join(os.path.abspath('.'), 'mkDirTest.txt')
+# os.path.split()函数拆分路径，但是只有父路径和最后文件名两部分组成的tuple
+split = os.path.split(join)
+# 拆分路径与扩展名ext = extend 即.txt
+splitext = os.path.splitext(join)
+
+print(splitext)
+print(split)
+print(join)
+
+# 创建dir
+os.mkdir(join)
+
+# 删除dir
+os.rmdir(join)
+
+# 对当前路径下文件重命名
+# os.rename('py4.txt', 'py4.py')
+
+# 删除文件
+# os.remove('py4.py')
+
+# 利用python列出所有目录,参数不指定路径时，使用'.'
+list1 = [x for x in os.listdir('.') if os.path.isdir(x)]
+print(list1)
+# 列出所有.py文件,利用拆分出的后缀名
+list2 = [y for y in os.listdir('.') if os.path.isfile(y)
+         and os.path.splitext(y)[1] == '.py']
+print(list2)
